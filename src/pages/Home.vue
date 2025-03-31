@@ -2,7 +2,7 @@
   <main class="home">
     <header class="home__header">
       <h1>Weather</h1>
-      <BaseIcon icon="person" />
+      <BaseIcon icon="user-circle" />
     </header>
 
     <SearchBar @search="handleSearch" />
@@ -11,45 +11,71 @@
       <router-link
         v-for="(weather, index) in weatherList"
         :key="index"
-        :to="`/details/${weather.city}`"
+        :to="`/detail/${encodeURIComponent(weather.city)}`"
         class="card-link"
       >
-        <div>
-          <WeatherCard :data="weather" />
-        </div>
+        <WeatherCard :data="weather" />
       </router-link>
     </section>
   </main>
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import SearchBar from "@/components/molecules/SearchBar.vue";
 import WeatherCard from "@/components/organisms/WeatherCard.vue";
 import BaseIcon from "@/components/atoms/BaseIcon.vue";
+import { useWeather } from "@/composables/useWeather";
+import type { Weather } from "@/types/weather";
 
-const weatherList = ref([
-  {
-    city: "My Location",
-    location: "Bangsar South",
-    temperature: 24,
-    description: "Moderate Rain",
-    high: 30,
-    low: 25,
-  },
-  {
-    city: "Seongnam-si",
-    location: "7:30 PM",
-    temperature: 21,
-    description: "Partly Cloudy",
-    high: 29,
-    low: 15,
-  },
-]);
 
-function handleSearch(city: string) {
-  console.log("Search for:", city);
+const { current, loading, error, fetchCurrentWeather, fetchWeatherByCoords } = useWeather()
+
+const weatherList = ref<Weather[]>([]);
+
+async function getMyLocationWeather() {
+  if (!navigator.geolocation) return;
+
+  navigator.geolocation.getCurrentPosition(
+    async (position) => {
+      const { latitude, longitude } = position.coords;
+      await fetchWeatherByCoords(latitude, longitude);
+      if (current.value) {
+        weatherList.value.unshift({
+          city: current.value.name,
+          location: "My Location",
+          temperature: Math.round(current.value.main.temp),
+          description: current.value.weather[0].description,
+          high: Math.round(current.value.main.temp_max),
+          low: Math.round(current.value.main.temp_min),
+        });
+      }
+    },
+    (err) => {
+      console.error("Geolocation error:", err);
+    }
+  );
 }
+async function handleSearch(city: string) {
+  await fetchCurrentWeather(city);
+  if (current.value) {
+    weatherList.value = [
+      {
+        city: current.value.name,
+        location: current.value.sys.country,
+        temperature: Math.round(current.value.main.temp),
+        description: current.value.weather[0].description,
+        high: Math.round(current.value.main.temp_max),
+        low: Math.round(current.value.main.temp_min),
+      },
+    ];
+  }
+}
+
+onMounted(() => {
+  getMyLocationWeather()
+})
+
 </script>
 
 <style scoped>
