@@ -52,4 +52,12 @@ export interface CurrentWeatherResponse {
       icon: string
     }[]
   }
-  
+
+  export interface Weather {
+    city: string;
+    location: string;
+    temperature: number;
+    description: string;
+    high: number;
+    low: number;
+  }
