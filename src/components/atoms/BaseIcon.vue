@@ -4,7 +4,7 @@
   
   <script setup lang="ts">
   defineProps<{
-    icon: [string, string] | string // ex: 'search' or ['fas', 'search']
+    icon: [string, string] | string
   }>()
   </script>
   

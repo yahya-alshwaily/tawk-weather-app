@@ -7,8 +7,16 @@ import {
   faCloud,
   faSun,
   faChevronRight,
+  faChevronLeft,
 } from '@fortawesome/free-solid-svg-icons'
 
-library.add(faSearch, faLocationDot, faCloud, faSun, faChevronRight)
+library.add(
+  faSearch,
+  faLocationDot,
+  faCloud,
+  faSun,
+  faChevronRight,
+  faChevronLeft
+)
 
 export { FontAwesomeIcon }
