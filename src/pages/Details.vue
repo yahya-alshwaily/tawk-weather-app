@@ -25,7 +25,6 @@ const route = useRoute();
 const city = route.params.city as string;
 
 console.log("Selected City:", city);
-// You can now use this to fetch weather or look up data locally
 const currentWeather = ref({
   location: "Bangsar South, KL",
   date: "Monday, 20 December 2021",
