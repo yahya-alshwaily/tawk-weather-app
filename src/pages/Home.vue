@@ -5,7 +5,7 @@
       <BaseIcon icon="user-circle" />
     </header>
 
-    <SearchBar @search="handleSearch" />
+    <SearchBar @search="handleCitySelect" />
 
     <section class="weather-list">
       <router-link
@@ -27,7 +27,10 @@ import WeatherCard from "@/components/organisms/WeatherCard.vue";
 import BaseIcon from "@/components/atoms/BaseIcon.vue";
 import { useWeather } from "@/composables/useWeather";
 import type { Weather } from "@/types/weather";
+import type { CityResult } from '@/types/cityresult'
+import { useRouter } from "vue-router";
 
+const router = useRouter()
 
 const { current, loading, error, fetchCurrentWeather, fetchWeatherByCoords } = useWeather()
 
@@ -56,20 +59,30 @@ async function getMyLocationWeather() {
     }
   );
 }
-async function handleSearch(city: string) {
-  await fetchCurrentWeather(city);
-  if (current.value) {
-    weatherList.value = [
-      {
-        city: current.value.name,
-        location: current.value.sys.country,
-        temperature: Math.round(current.value.main.temp),
-        description: current.value.weather[0].description,
-        high: Math.round(current.value.main.temp_max),
-        low: Math.round(current.value.main.temp_min),
-      },
-    ];
+async function handleCitySelect(city: CityResult) {
+  await fetchWeatherByCoords(city.lat, city.lon)
+
+  if (!current.value) {
+    console.warn("No weather data returned")
+    return
   }
+
+  const alreadyInList = weatherList.value.some(
+    (item) => item.city === current.value!.name
+  )
+
+  if (!alreadyInList) {
+    weatherList.value.push({
+      city: current.value.name,
+      location: `${city.state || ""} ${city.country}`.trim(),
+      temperature: Math.round(current.value.main.temp),
+      description: current.value.weather[0].description,
+      high: Math.round(current.value.main.temp_max),
+      low: Math.round(current.value.main.temp_min)
+    })
+  }
+
+  router.push(`/detail/${encodeURIComponent(current.value.name)}`)
 }
 
 onMounted(() => {
