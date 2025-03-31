@@ -4,7 +4,7 @@ import Details from '@/pages/Details.vue'
 
 const routes = [
   { path: '/', name: 'Home', component: Home },
-  { path: '/details/:city', name: 'Details', component: Details, props: true }
+  { path: '/detail/:city', name: 'Detail', component: Details, props: true }
 ]
 
 const router = createRouter({
