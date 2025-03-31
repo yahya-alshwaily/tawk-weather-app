@@ -1,57 +1,112 @@
 <template>
   <main class="weather-detail">
-    <WeatherHeader :weather="currentWeather" />
+    <div v-if="loading">Loading...</div>
+    <div v-else-if="error">Error: {{ error }}</div>
+    <template v-else-if="currentWeather">
+      <WeatherHeader :weather="currentWeather" />
 
-    <section class="forecast-section">
-      <h2>Hourly Forecast</h2>
-      <HourlyForecast :data="hourlyData" />
-    </section>
+      <section class="forecast-section">
+        <h2>Hourly Forecast</h2>
+        <HourlyForecast :data="hourlyData" />
+      </section>
 
-    <section class="forecast-section">
-      <h2>Weekly Forecast</h2>
-      <WeeklyForecast :data="weeklyData" />
-    </section>
+      <section class="forecast-section">
+        <h2>Weekly Forecast</h2>
+        <WeeklyForecast :data="weeklyData" />
+      </section>
+    </template>
   </main>
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { onMounted, computed } from "vue";
+import { useRoute } from "vue-router";
+
 import WeatherHeader from "@/components/organisms/WeatherHeader.vue";
 import HourlyForecast from "@/components/organisms/HourlyForecast.vue";
 import WeeklyForecast from "@/components/organisms/WeeklyForecast.vue";
-import { useRoute } from "vue-router";
+
+import { useWeather } from "@/composables/useWeather";
 
 const route = useRoute();
-const city = route.params.city as string;
+const city = decodeURIComponent(route.params.city as string)
 
-console.log("Selected City:", city);
-const currentWeather = ref({
-  location: "Bangsar South, KL",
-  date: "Monday, 20 December 2021",
-  temperature: 24,
-  condition: "Moderate Rain",
-  lastUpdated: "6:00 PM",
-  icon: "cloud-rain",
-});
+const {
+  forecast,
+  fetchForecast,
+  loading,
+  error,
+  getHourlyForecast,
+  getDailyForecast,
+  fetchForecastByCoords,
+} = useWeather();
 
-const hourlyData = ref([
-  { time: "7:00 PM", temp: 20, icon: "cloud-rain" },
-  { time: "8:00 PM", temp: 20, icon: "cloud" },
-  { time: "9:00 PM", temp: 19, icon: "cloud-moon-rain" },
-  { time: "10:00 PM", temp: 19, icon: "cloud" },
-]);
+onMounted(() => {
+  if (city === "My Location") {
+    console.log("Using geolocation in detail view")
+  } else {
+    fetchForecast(city)
+  }
+})
 
-const weeklyData = ref([
-  { day: "Monday", temp: 30, condition: "Sunny", icon: "sun" },
-  { day: "Tuesday", temp: 19, condition: "Thunderstorms", icon: "bolt" },
-  {
-    day: "Wednesday",
-    temp: 17,
-    condition: "Heavy Rain",
-    icon: "cloud-showers-heavy",
-  },
-  { day: "Thursday", temp: 17, condition: "Cloudy", icon: "cloud" },
-]);
+const hourlyData = computed(() => getHourlyForecast());
+const weeklyData = computed(() => getDailyForecast());
+
+// Build header info from first forecast entry
+const currentWeather = computed(() => {
+  if (!forecast.value || !forecast.value.list.length) return null
+
+  const now = forecast.value.list[0]
+  const date = new Date(now.dt * 1000)
+
+  return {
+    location: city === "My Location"
+      ? "My Location"
+      : `${forecast.value.city.name}, ${forecast.value.city.country}`,
+    date: date.toLocaleDateString(undefined, {
+      weekday: "long",
+      day: "numeric",
+      month: "long"
+    }),
+    temperature: Math.round(now.main.temp),
+    condition: now.weather[0].description,
+    lastUpdated: date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+    icon: mapIcon(now.weather[0].main)
+  }
+})
+
+function mapIcon(condition: string): string {
+  const map: Record<string, string> = {
+    Clear: "sun",
+    Clouds: "cloud",
+    Rain: "cloud-rain",
+    Thunderstorm: "bolt",
+    Snow: "snowflake",
+    Drizzle: "cloud-showers-heavy",
+    Mist: "smog",
+  };
+  return map[condition] || "cloud";
+}
+
+onMounted(() => {
+  if (city === "My Location") {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const { latitude, longitude } = position.coords
+          await fetchForecastByCoords(latitude, longitude)
+        },
+        (err) => {
+          console.error("Geolocation error:", err)
+        }
+      )
+    }
+  } else {
+    fetchForecast(city)
+    console.log('Forecast after fetch:', forecast.value)
+  }
+})
+
 </script>
 
 <style scoped>
