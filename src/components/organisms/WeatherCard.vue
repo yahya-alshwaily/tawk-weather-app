@@ -2,8 +2,8 @@
     <div class="weather-card">
       <div class="weather-card__top">
         <div>
-          <h2>{{ data.city }}</h2>
-          <p class="location">{{ data.location }}</p>
+          <h2>{{ data.location }}</h2>
+          <p class="location">{{ data.city }}</p>
         </div>
         <p class="temp">{{ data.temperature }}°</p>
       </div>

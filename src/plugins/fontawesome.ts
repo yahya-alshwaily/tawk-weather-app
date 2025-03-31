@@ -8,6 +8,7 @@ import {
   faSun,
   faChevronRight,
   faChevronLeft,
+  faUserCircle,
 } from '@fortawesome/free-solid-svg-icons'
 
 library.add(
@@ -16,7 +17,8 @@ library.add(
   faCloud,
   faSun,
   faChevronRight,
-  faChevronLeft
+  faChevronLeft,
+  faUserCircle
 )
 
 export { FontAwesomeIcon }
