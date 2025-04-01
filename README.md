@@ -14,7 +14,10 @@ npm install
 
 # 3. Create an .env file (see below)
 
-# 4. Run the development server
+# 4. install dependencies
+npm install
+
+# 5. Run the development server
 npm run dev
 
 ## 🌐 Environment Variables
