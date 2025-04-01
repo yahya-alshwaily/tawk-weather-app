@@ -5,19 +5,27 @@ import {
   faSearch,
   faLocationDot,
   faCloud,
+  faCloudRain,
   faSun,
   faChevronRight,
   faChevronLeft,
   faUserCircle,
+  faPlus,
+  faTrashCan,
+  faX
 } from '@fortawesome/free-solid-svg-icons'
 
 library.add(
   faSearch,
   faLocationDot,
   faCloud,
+  faCloudRain,
   faSun,
   faChevronRight,
   faChevronLeft,
+  faPlus,
+  faX,
+  faTrashCan,
   faUserCircle
 )
 
