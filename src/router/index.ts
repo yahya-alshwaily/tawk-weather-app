@@ -1,15 +1,14 @@
-import { createRouter, createWebHistory } from 'vue-router'
-import Home from '@/pages/Home.vue'
-import Details from '@/pages/Details.vue'
+import { createRouter, createWebHistory } from "vue-router";
 
 const routes = [
-  { path: '/', name: 'Home', component: Home },
-  { path: '/detail/:city', name: 'Detail', component: Details, props: true }
-]
+  { path: "/", name: "Home", component: () => import("@/components/views/Home.vue") },
+  { path: "/detail/:city", name: "Detail", component: () => import("@/components/views/Details.vue"), props: true },
+  { path: "/profile", name: "Profile", component: () => import("@/components/views/Profile.vue") },
+];
 
 const router = createRouter({
   history: createWebHistory(),
-  routes
-})
+  routes,
+});
 
-export default router
+export default router;
