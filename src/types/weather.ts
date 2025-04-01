@@ -1,4 +1,3 @@
-import { ref } from "vue";
 
 export interface HourData {
   time: string;
@@ -42,6 +41,7 @@ export interface CurrentWeatherResponse {
     sys: {
       country: string
     }
+    timezone: number
     main: {
       temp: number
       temp_min: number
@@ -49,6 +49,7 @@ export interface CurrentWeatherResponse {
     }
     weather: {
       description: string
+      main: string
       icon: string
     }[]
   }
@@ -60,4 +61,6 @@ export interface CurrentWeatherResponse {
     description: string;
     high: number;
     low: number;
+    localTime: string;
+    condition: string;
   }
